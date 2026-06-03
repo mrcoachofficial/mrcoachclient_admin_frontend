@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Filter, MoreVertical, CheckCircle2, Clock } from 'lucide-react';
+import { Search, Filter, MoreVertical, CheckCircle2, Clock, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import clsx from 'clsx';
 
@@ -16,19 +16,31 @@ export default function BookingsCRM() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const fetchBookings = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/admin/bookings');
+      setBookings(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/admin/bookings');
-        setBookings(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching bookings:', error);
-        setLoading(false);
-      }
-    };
     fetchBookings();
   }, []);
+
+  const handleDeleteBooking = async (id) => {
+    if (!window.confirm('Are you sure you want to permanently delete this booking?')) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/admin/bookings/${id}`);
+      fetchBookings();
+    } catch (error) {
+      console.error('Error deleting booking:', error);
+      alert('Failed to delete booking.');
+    }
+  };
 
   const filteredBookings = bookings.filter(b => {
     const matchesTab = activeTab === 'All' ||
@@ -159,8 +171,12 @@ export default function BookingsCRM() {
                     )}
                   </td>
                   <td className="p-4 text-right">
-                    <button className="p-2 hover:bg-surfaceLight rounded-md text-textMuted hover:text-textMain transition-colors">
-                      <MoreVertical className="w-4 h-4" />
+                    <button 
+                      onClick={() => handleDeleteBooking(booking._id)}
+                      className="p-2 text-textMuted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                      title="Delete Booking"
+                    >
+                      <Trash2 className="w-4.5 h-4.5" />
                     </button>
                   </td>
                 </tr>

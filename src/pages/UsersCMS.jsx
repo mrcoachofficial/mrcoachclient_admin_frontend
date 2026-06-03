@@ -33,7 +33,11 @@ export default function UsersCMS() {
     district: '',
     state: '',
     pincode: '',
-    address: ''
+    address: '',
+    gender: '',
+    startPlan: '',
+    availableDays: [],
+    sourceWebsite: ''
   });
 
   const [deleteConfirmUser, setDeleteConfirmUser] = useState(null);
@@ -106,6 +110,9 @@ export default function UsersCMS() {
       Gender: u.gender || '',
       Location: formatLocation(u),
       'Service Type': u.serviceType || '',
+      'Preferred Start Date': u.startPlan ? new Date(u.startPlan).toLocaleDateString() : '',
+      'Availability Days': u.availableDays ? u.availableDays.join(', ') : '',
+      'Heard From': u.sourceWebsite || '',
       'Registration Date': u.createdAt ? new Date(u.createdAt).toLocaleDateString() : ''
     }));
 
@@ -224,6 +231,9 @@ export default function UsersCMS() {
             preferredLanguage: row['Preferred Language'] || row.preferredLanguage || '',
             emergencyContact: row['Emergency Contact'] || row.emergencyContact || '',
             fitnessGoal: row['Fitness Goal'] || row.fitnessGoal || '',
+            startPlan: row['Preferred Start Date'] || row.startPlan || '',
+            availableDays: row['Availability Days'] ? row['Availability Days'].split(',').map(s => s.trim()).filter(Boolean) : (row.availableDays || []),
+            sourceWebsite: row['Heard From'] || row.sourceWebsite || '',
           };
         });
 
@@ -279,7 +289,11 @@ export default function UsersCMS() {
       district: user.district || '',
       state: user.state || '',
       pincode: user.pincode || '',
-      address: user.address || ''
+      address: user.address || '',
+      gender: user.gender || '',
+      startPlan: user.startPlan ? new Date(user.startPlan).toISOString().split('T')[0] : '',
+      availableDays: user.availableDays || [],
+      sourceWebsite: user.sourceWebsite || ''
     });
     setEditModalOpen(true);
   };
@@ -689,6 +703,9 @@ export default function UsersCMS() {
                     <p><span className="text-textMuted font-medium">Gender:</span> <span className="text-textMain font-medium">{selectedUserDetail.user.gender || 'Not Set'}</span></p>
                     <p><span className="text-textMuted font-medium">Age:</span> <span className="text-textMain font-medium">{selectedUserDetail.user.age ? `${selectedUserDetail.user.age} yrs` : 'N/A'}</span></p>
                     <p><span className="text-textMuted font-medium">Emergency Contact:</span> <span className="text-textMain font-mono font-medium">{selectedUserDetail.user.emergencyContact || 'N/A'}</span></p>
+                    <p><span className="text-textMuted font-medium">Preferred Start Date:</span> <span className="text-textMain font-medium">{selectedUserDetail.user.startPlan ? new Date(selectedUserDetail.user.startPlan).toLocaleDateString() : 'N/A'}</span></p>
+                    <p><span className="text-textMuted font-medium">Availability:</span> <span className="text-textMain font-medium">{selectedUserDetail.user.availableDays?.join(', ') || 'N/A'}</span></p>
+                    <p><span className="text-textMuted font-medium">Heard From:</span> <span className="text-textMain font-medium">{selectedUserDetail.user.sourceWebsite || 'N/A'}</span></p>
                     <p className="italic text-textMuted mt-1">"{selectedUserDetail.user.fitnessGoal || 'No fitness goal stated'}"</p>
                   </div>
                 </div>
@@ -894,18 +911,66 @@ export default function UsersCMS() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-textMuted mb-1">Service Preference</label>
+                  <select 
+                    value={editForm.serviceType}
+                    onChange={(e) => setEditForm({ ...editForm, serviceType: e.target.value })}
+                    className="w-full px-3 py-2 bg-surfaceLight border border-borderLine rounded-xl text-textMain text-sm focus:outline-none focus:border-primary/50"
+                  >
+                    <option value="">Not Selected</option>
+                    <option value="Online">Online</option>
+                    <option value="Home Visit">Home Visit</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-textMuted mb-1">Gender</label>
+                  <select 
+                    value={editForm.gender}
+                    onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
+                    className="w-full px-3 py-2 bg-surfaceLight border border-borderLine rounded-xl text-textMain text-sm focus:outline-none focus:border-primary/50"
+                  >
+                    <option value="">Not Selected</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-textMuted mb-1">Preferred Start Date</label>
+                  <input 
+                    type="date" 
+                    value={editForm.startPlan}
+                    onChange={(e) => setEditForm({ ...editForm, startPlan: e.target.value })}
+                    className="w-full px-3 py-2 bg-surfaceLight border border-borderLine rounded-xl text-textMain text-sm focus:outline-none focus:border-primary/50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-textMuted mb-1">Heard From (Referral Source)</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Instagram, Friends"
+                    value={editForm.sourceWebsite}
+                    onChange={(e) => setEditForm({ ...editForm, sourceWebsite: e.target.value })}
+                    className="w-full px-3 py-2 bg-surfaceLight border border-borderLine rounded-xl text-textMain text-sm focus:outline-none focus:border-primary/50"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-xs font-semibold text-textMuted mb-1">Service Preference</label>
-                <select 
-                  value={editForm.serviceType}
-                  onChange={(e) => setEditForm({ ...editForm, serviceType: e.target.value })}
+                <label className="block text-xs font-semibold text-textMuted mb-1">Availability (comma-separated days)</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Mon, Wed, Fri"
+                  value={Array.isArray(editForm.availableDays) ? editForm.availableDays.join(', ') : editForm.availableDays}
+                  onChange={(e) => setEditForm({ ...editForm, availableDays: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
                   className="w-full px-3 py-2 bg-surfaceLight border border-borderLine rounded-xl text-textMain text-sm focus:outline-none focus:border-primary/50"
-                >
-                  <option value="">Not Selected</option>
-                  <option value="Online">Online</option>
-                  <option value="Home Visit">Home Visit</option>
-                  <option value="Hybrid">Hybrid</option>
-                </select>
+                />
               </div>
 
               <div className="border-t border-borderLine pt-4 mt-2">

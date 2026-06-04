@@ -314,7 +314,7 @@ export default function ServicesCMS() {
         {loading ? (
           <p className="text-textMuted">Loading services...</p>
         ) : (
-          services.filter(s => s.category !== 'CategoryBanner').map(service => (
+          services.filter(s => s.category !== 'CategoryBanner' && s.category !== 'CategoryInnerBanner').map(service => (
             <div key={service._id} className="glass rounded-2xl overflow-hidden flex flex-col">
               <div className="h-48 bg-surfaceLight relative group">
                 {service.imageUrl ? (

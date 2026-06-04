@@ -8,6 +8,7 @@ const navItems = [
   { icon: User, label: 'Users CMS', path: '/users' },
   { icon: Ticket, label: 'Event Bookings', path: '/event-bookings' },
   { icon: ImageIcon, label: 'Services CMS', path: '/services' },
+  { icon: ImageIcon, label: 'Homepage Services', path: '/homepage-services' },
   { icon: Sliders, label: 'Home Carousel CMS', path: '/carousel' },
   { icon: Library, label: 'Service Media CMS', path: '/service-media' },
   { icon: CalendarDays, label: 'Slots', path: '/slots' },

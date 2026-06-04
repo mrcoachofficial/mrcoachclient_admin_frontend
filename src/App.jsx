@@ -6,6 +6,7 @@ import BookingsCRM from './pages/BookingsCRM';
 import UsersCMS from './pages/UsersCMS';
 import EventBookingsCMS from './pages/EventBookingsCMS';
 import ServicesCMS from './pages/ServicesCMS';
+import HomepageServicesCMS from './pages/HomepageServicesCMS';
 import SlotsManager from './pages/SlotsManager';
 import ProductsCMS from './pages/ProductsCMS';
 import RewardsCMS from './pages/RewardsCMS';
@@ -39,6 +40,7 @@ function App() {
           <Route path="/users" element={<UsersCMS />} />
           <Route path="/event-bookings" element={<EventBookingsCMS />} />
           <Route path="/services" element={<ServicesCMS />} />
+          <Route path="/homepage-services" element={<HomepageServicesCMS />} />
           <Route path="/slots" element={<SlotsManager />} />
           <Route path="/products" element={<ProductsCMS />} />
           <Route path="/rewards" element={<RewardsCMS />} />

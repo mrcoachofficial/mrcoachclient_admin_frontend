@@ -13,9 +13,7 @@ export default function ServicesCMS() {
   const [savingHero, setSavingHero] = useState(false);
   const [uploadingEditImage, setUploadingEditImage] = useState(false);
 
-  // Category tiles states
-  const [uploadingCategories, setUploadingCategories] = useState({});
-  const categoriesList = ['Fitness', 'Physio', 'Sports', 'Yoga', 'Therapy', 'Nutrition'];
+
 
   const getImageUrl = (url) => {
     if (!url) return '';
@@ -147,54 +145,7 @@ export default function ServicesCMS() {
     }
   };
 
-  const handleCategoryTileUpload = async (catName, file) => {
-    const formData = new FormData();
-    formData.append('image', file);
 
-    setUploadingCategories(prev => ({ ...prev, [catName]: true }));
-
-    try {
-      const token = localStorage.getItem('adminToken');
-      // 1. Upload to multer endpoint
-      const uploadRes = await axios.post(`${window.API_BASE_URL}/api/upload`, formData, {
-        headers: { 
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`
-        }
-      });
-      const imageUrl = uploadRes.data.imageUrl;
-
-      // 2. Find if existing category banner exists
-      const existing = services.find(s => s.category === 'CategoryBanner' && s.title === catName);
-
-      if (existing) {
-        // Update existing service
-        await axios.put(`${window.API_BASE_URL}/api/admin/services/${existing._id}`, { imageUrl }, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      } else {
-        // Create new service representing this category banner
-        await axios.post(`${window.API_BASE_URL}/api/services`, {
-          title: catName,
-          category: 'CategoryBanner',
-          price: 0,
-          description: `Category Tile Banner for ${catName}`,
-          imageUrl
-        }, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      }
-
-      // Refresh list
-      fetchServices();
-      alert(`Category tile for ${catName} updated successfully!`);
-    } catch (error) {
-      console.error('Error uploading category image:', error);
-      alert('Failed to upload category image');
-    } finally {
-      setUploadingCategories(prev => ({ ...prev, [catName]: false }));
-    }
-  };
 
   return (
     <div className="p-8">
@@ -253,61 +204,7 @@ export default function ServicesCMS() {
         </div>
       </div>
 
-      {/* Home Screen Category Banners */}
-      <div className="glass rounded-2xl p-6 border border-borderLine/50 mb-8 w-full">
-        <h2 className="text-md font-bold text-textMain mb-2 flex items-center gap-2">
-          <ImageIcon className="w-4 h-4 text-primary" /> Home Screen Category Tiles
-        </h2>
-        <p className="text-xs text-textMuted mb-6">
-          Upload custom images for the main 6 service categories displayed on the mobile app home screen.
-        </p>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categoriesList.map(cat => {
-            const banner = services.find(s => s.category === 'CategoryBanner' && s.title === cat);
-            const bannerUrl = banner ? getImageUrl(banner.imageUrl) : '';
-
-            return (
-              <div key={cat} className="glass rounded-xl overflow-hidden border border-borderLine/40 flex flex-col items-center p-3 relative group bg-surfaceLight/10">
-                <span className="text-xs font-bold text-textMain mb-2">{cat}</span>
-                <div className="w-full aspect-square rounded-lg overflow-hidden bg-surfaceLight/50 relative border border-borderLine/30 flex items-center justify-center">
-                  {bannerUrl ? (
-                    <img src={bannerUrl} alt={cat} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="text-center p-2">
-                      <ImageIcon className="w-6 h-6 mx-auto mb-1 text-textMuted/45" />
-                      <span className="text-[10px] text-textMuted block">Default Asset</span>
-                    </div>
-                  )}
-
-                  {/* Upload Overlay */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <label className="cursor-pointer bg-primary text-black px-2 py-1 rounded text-[10px] font-bold flex items-center gap-1 hover:bg-primaryHover transition-colors">
-                      <Upload className="w-3 h-3" />
-                      <span>{uploadingCategories[cat] ? '...' : 'Upload'}</span>
-                      <input 
-                        type="file" 
-                        className="hidden" 
-                        accept="image/*"
-                        onChange={(e) => {
-                          if (e.target.files[0]) {
-                            handleCategoryTileUpload(cat, e.target.files[0]);
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
-                </div>
-                {bannerUrl && (
-                  <span className="text-[9px] text-green-400 font-semibold mt-1.5 flex items-center gap-0.5">
-                    ● Custom Active
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
       {editingService && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">

@@ -32,7 +32,7 @@ export default function ServiceMediaCMS() {
       
       // 1. Fetch public services list
       try {
-        const servicesRes = await axios.get('http://localhost:5000/api/services');
+        const servicesRes = await axios.get(`${window.API_BASE_URL}/api/services`);
         setServices(servicesRes.data);
         if (servicesRes.data.length > 0) {
           setServiceId(servicesRes.data[0]._id);
@@ -43,7 +43,7 @@ export default function ServiceMediaCMS() {
 
       // 2. Fetch service media overrides
       try {
-        const mediaRes = await axios.get('http://localhost:5000/api/service-media/admin', {
+        const mediaRes = await axios.get(`${window.API_BASE_URL}/api/service-media/admin`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setMediaList(mediaRes.data);
@@ -94,15 +94,15 @@ export default function ServiceMediaCMS() {
 
       try {
         const token = localStorage.getItem('adminToken');
-        const response = await axios.post('http://localhost:5000/api/upload', formData, {
+        const response = await axios.post(`${window.API_BASE_URL}/api/upload`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`
           }
         });
-        setImageUrl(`http://localhost:5000${response.data.imageUrl}`);
+        setImageUrl(`${window.API_BASE_URL}${response.data.imageUrl}`);
         // Auto generate dummy optimized thumbnail version (suffixing path or linking same for simplicity)
-        setThumbnailUrl(`http://localhost:5000${response.data.imageUrl}`);
+        setThumbnailUrl(`${window.API_BASE_URL}${response.data.imageUrl}`);
         setFormStatus({ success: true, message: 'Image uploaded and thumbnail generated!' });
       } catch (error) {
         setFormStatus({ success: false, message: 'Image upload failed.' });
@@ -123,7 +123,7 @@ export default function ServiceMediaCMS() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.post('http://localhost:5000/api/service-media/admin', {
+      await axios.post(`${window.API_BASE_URL}/api/service-media/admin`, {
         serviceId,
         imageUrl,
         thumbnailUrl: thumbnailUrl || imageUrl,
@@ -150,7 +150,7 @@ export default function ServiceMediaCMS() {
     if (!window.confirm('Remove media override for this service? It will fallback to standard default images.')) return;
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:5000/api/service-media/admin/${id}`, {
+      await axios.delete(`${window.API_BASE_URL}/api/service-media/admin/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchServicesAndMedia();

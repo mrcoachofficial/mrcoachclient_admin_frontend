@@ -44,7 +44,7 @@ export default function NotificationsCMS() {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://localhost:5000/api/notifications/admin', {
+      const response = await axios.get(`${window.API_BASE_URL}/api/notifications/admin`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(response.data);
@@ -58,7 +58,7 @@ export default function NotificationsCMS() {
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://localhost:5000/api/notifications/admin/analytics', {
+      const response = await axios.get(`${window.API_BASE_URL}/api/notifications/admin/analytics`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAnalytics(response.data);
@@ -77,13 +77,13 @@ export default function NotificationsCMS() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.post('http://localhost:5000/api/upload', formData, {
+      const response = await axios.post(`${window.API_BASE_URL}/api/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`
         }
       });
-      setBannerImage(`http://localhost:5000${response.data.imageUrl}`);
+      setBannerImage(`${window.API_BASE_URL}${response.data.imageUrl}`);
       setFormStatus({ success: true, message: 'Banner image uploaded successfully!' });
     } catch (error) {
       setFormStatus({ success: false, message: 'Image upload failed. Supports JPG/PNG/WebP only.' });
@@ -109,7 +109,7 @@ export default function NotificationsCMS() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.post('http://localhost:5000/api/notifications/admin', {
+      await axios.post(`${window.API_BASE_URL}/api/notifications/admin`, {
         title,
         description,
         bannerImage,
@@ -150,7 +150,7 @@ export default function NotificationsCMS() {
   const handleToggleStatus = async (id) => {
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.put(`http://localhost:5000/api/notifications/admin/${id}/status`, {}, {
+      await axios.put(`${window.API_BASE_URL}/api/notifications/admin/${id}/status`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchNotifications();
@@ -163,7 +163,7 @@ export default function NotificationsCMS() {
     if (!window.confirm('Are you sure you want to delete this notification campaign? All users in-app copies will be deleted.')) return;
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:5000/api/notifications/admin/${id}`, {
+      await axios.delete(`${window.API_BASE_URL}/api/notifications/admin/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchNotifications();

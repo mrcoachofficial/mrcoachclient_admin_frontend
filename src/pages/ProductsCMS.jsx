@@ -22,7 +22,7 @@ export default function ProductsCMS() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/products');
+      const response = await axios.get(`${window.API_BASE_URL}/api/admin/products`);
       setProducts(response.data);
       setLoading(false);
     } catch (error) {
@@ -34,7 +34,7 @@ export default function ProductsCMS() {
   const handleCreateProduct = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/admin/products', {
+      await axios.post(`${window.API_BASE_URL}/api/admin/products`, {
         title,
         price: Number(price),
         status,
@@ -53,7 +53,7 @@ export default function ProductsCMS() {
   const handleUpdateProduct = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/admin/products/${editingProduct._id}`, {
+      await axios.put(`${window.API_BASE_URL}/api/admin/products/${editingProduct._id}`, {
         title: editingProduct.title,
         price: Number(editingProduct.price),
         status: editingProduct.status,
@@ -70,7 +70,7 @@ export default function ProductsCMS() {
   const handleDeleteProduct = async (id) => {
     if (!window.confirm('Delete this product?')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/admin/products/${id}`);
+      await axios.delete(`${window.API_BASE_URL}/api/admin/products/${id}`);
       fetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
@@ -84,13 +84,13 @@ export default function ProductsCMS() {
     formData.append('image', file);
 
     try {
-      const uploadRes = await axios.post('http://localhost:5000/api/upload', formData, {
+      const uploadRes = await axios.post(`${window.API_BASE_URL}/api/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
       const imageUrl = uploadRes.data.url;
 
-      await axios.put(`http://localhost:5000/api/admin/products/${productId}`, {
+      await axios.put(`${window.API_BASE_URL}/api/admin/products/${productId}`, {
         imageUrl
       });
 
@@ -198,7 +198,7 @@ export default function ProductsCMS() {
             <div key={product._id} className="glass rounded-2xl overflow-hidden border border-borderLine/50 flex flex-col">
               <div className="relative aspect-video bg-surfaceLight/50 flex items-center justify-center border-b border-borderLine/50">
                 {product.imageUrl ? (
-                  <img src={`http://localhost:5000${product.imageUrl}`} alt={product.title} className="w-full h-full object-cover" />
+                  <img src={`${window.API_BASE_URL}${product.imageUrl}`} alt={product.title} className="w-full h-full object-cover" />
                 ) : (
                   <Package className="w-12 h-12 text-textMuted/50" />
                 )}

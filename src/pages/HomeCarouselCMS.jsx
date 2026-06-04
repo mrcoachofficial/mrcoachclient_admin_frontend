@@ -36,7 +36,7 @@ export default function HomeCarouselCMS() {
   const fetchBanners = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://localhost:5000/api/home-banners/admin', {
+      const response = await axios.get(`${window.API_BASE_URL}/api/home-banners/admin`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setBanners(response.data);
@@ -77,13 +77,13 @@ export default function HomeCarouselCMS() {
 
       try {
         const token = localStorage.getItem('adminToken');
-        const response = await axios.post('http://localhost:5000/api/upload', formData, {
+        const response = await axios.post(`${window.API_BASE_URL}/api/upload`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`
           }
         });
-        setImageUrl(`http://localhost:5000${response.data.imageUrl}`);
+        setImageUrl(`${window.API_BASE_URL}${response.data.imageUrl}`);
         setFormStatus({ success: true, message: 'Carousel banner uploaded successfully!' });
       } catch (error) {
         setFormStatus({ success: false, message: 'Image upload failed.' });
@@ -115,12 +115,12 @@ export default function HomeCarouselCMS() {
     try {
       const token = localStorage.getItem('adminToken');
       if (editingId) {
-        await axios.put(`http://localhost:5000/api/home-banners/admin/${editingId}`, payload, {
+        await axios.put(`${window.API_BASE_URL}/api/home-banners/admin/${editingId}`, payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setFormStatus({ success: true, message: 'Carousel slide updated successfully!' });
       } else {
-        await axios.post('http://localhost:5000/api/home-banners/admin', payload, {
+        await axios.post(`${window.API_BASE_URL}/api/home-banners/admin`, payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setFormStatus({ success: true, message: 'Carousel slide created successfully!' });
@@ -173,7 +173,7 @@ export default function HomeCarouselCMS() {
   const handleToggleActive = async (id) => {
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.put(`http://localhost:5000/api/home-banners/admin/${id}/toggle`, {}, {
+      await axios.put(`${window.API_BASE_URL}/api/home-banners/admin/${id}/toggle`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchBanners();
@@ -186,7 +186,7 @@ export default function HomeCarouselCMS() {
     if (!window.confirm('Delete this carousel slide?')) return;
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:5000/api/home-banners/admin/${id}`, {
+      await axios.delete(`${window.API_BASE_URL}/api/home-banners/admin/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchBanners();
@@ -200,7 +200,7 @@ export default function HomeCarouselCMS() {
     const newOrder = Math.max(0, banner.displayOrder + change);
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.put(`http://localhost:5000/api/home-banners/admin/${banner._id}`, {
+      await axios.put(`${window.API_BASE_URL}/api/home-banners/admin/${banner._id}`, {
         displayOrder: newOrder
       }, {
         headers: { Authorization: `Bearer ${token}` }

@@ -24,7 +24,7 @@ export default function Settings() {
 
   const fetchConfigs = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/config');
+      const response = await axios.get(`${window.API_BASE_URL}/api/admin/config`);
       setMaintenanceMode(response.data.maintenanceMode);
       setSendNotifications(response.data.sendNotifications);
       setRewardsEnabled(response.data.rewardsEnabled);
@@ -44,7 +44,7 @@ export default function Settings() {
     }
 
     try {
-      await axios.put('http://localhost:5000/api/admin/config', {
+      await axios.put(`${window.API_BASE_URL}/api/admin/config`, {
         key,
         value: newValue
       });
@@ -74,7 +74,7 @@ export default function Settings() {
     setUpdatingPassword(true);
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.put('http://localhost:5000/api/admin/change-password', {
+      await axios.put(`${window.API_BASE_URL}/api/admin/change-password`, {
         currentPassword,
         newPassword
       }, {

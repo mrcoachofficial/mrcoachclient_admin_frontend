@@ -26,7 +26,7 @@ export default function ServicesCMS() {
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/services');
+      const response = await axios.get(`${window.API_BASE_URL}/api/services`);
       setServices(response.data);
       setLoading(false);
     } catch (error) {
@@ -37,7 +37,7 @@ export default function ServicesCMS() {
 
   const fetchHeroImage = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/services/hero-image');
+      const response = await axios.get(`${window.API_BASE_URL}/api/services/hero-image`);
       setHeroImage(response.data.imageUrl);
     } catch (error) {
       console.error('Error fetching hero image:', error);
@@ -53,14 +53,14 @@ export default function ServicesCMS() {
     formData.append('image', file);
 
     try {
-      const uploadRes = await axios.post('http://localhost:5000/api/upload', formData, {
+      const uploadRes = await axios.post(`${window.API_BASE_URL}/api/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       const relativeUrl = uploadRes.data.imageUrl;
       setHeroImage(relativeUrl);
 
       // Automatically save to config immediately after upload
-      await axios.put('http://localhost:5000/api/admin/config', {
+      await axios.put(`${window.API_BASE_URL}/api/admin/config`, {
         key: 'servicesHeroImage',
         value: relativeUrl
       });
@@ -76,7 +76,7 @@ export default function ServicesCMS() {
   const saveHeroImage = async () => {
     setSavingHero(true);
     try {
-      await axios.put('http://localhost:5000/api/admin/config', {
+      await axios.put(`${window.API_BASE_URL}/api/admin/config`, {
         key: 'servicesHeroImage',
         value: heroImage
       });
@@ -92,7 +92,7 @@ export default function ServicesCMS() {
   const handleUpdateService = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/admin/services/${editingService._id}`, {
+      await axios.put(`${window.API_BASE_URL}/api/admin/services/${editingService._id}`, {
         title: editingService.title,
         price: Number(editingService.price),
         description: editingService.description,
@@ -111,7 +111,7 @@ export default function ServicesCMS() {
   const handleDeleteService = async (id) => {
     if (!window.confirm('Are you sure you want to permanently delete this service?')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/admin/services/${id}`);
+      await axios.delete(`${window.API_BASE_URL}/api/admin/services/${id}`);
       fetchServices();
       alert('Service deleted successfully!');
     } catch (error) {
@@ -126,13 +126,13 @@ export default function ServicesCMS() {
 
     try {
       // 1. Upload to multer endpoint
-      const uploadRes = await axios.post('http://localhost:5000/api/upload', formData, {
+      const uploadRes = await axios.post(`${window.API_BASE_URL}/api/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       const imageUrl = uploadRes.data.imageUrl;
 
       // 2. Update service with new image URL
-      await axios.put(`http://localhost:5000/api/admin/services/${serviceId}`, { imageUrl });
+      await axios.put(`${window.API_BASE_URL}/api/admin/services/${serviceId}`, { imageUrl });
       
       // Refresh list
       fetchServices();
@@ -267,7 +267,7 @@ export default function ServicesCMS() {
                         const formData = new FormData();
                         formData.append('image', file);
                         try {
-                          const uploadRes = await axios.post('http://localhost:5000/api/upload', formData, {
+                          const uploadRes = await axios.post(`${window.API_BASE_URL}/api/upload`, formData, {
                             headers: { 'Content-Type': 'multipart/form-data' }
                         });
                         setEditingService({ ...editingService, imageUrl: uploadRes.data.imageUrl });

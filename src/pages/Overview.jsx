@@ -28,10 +28,10 @@ export default function Overview() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const overviewResponse = await axios.get('http://localhost:5000/api/admin/overview');
+        const overviewResponse = await axios.get(`${window.API_BASE_URL}/api/admin/overview`);
         const { totalClients, totalBookings, totalEnquiries, paidDemos, totalRevenue } = overviewResponse.data;
 
-        const bookingsResponse = await axios.get('http://localhost:5000/api/admin/bookings');
+        const bookingsResponse = await axios.get(`${window.API_BASE_URL}/api/admin/bookings`);
         const bookings = bookingsResponse.data;
 
         setStats({

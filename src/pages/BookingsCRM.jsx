@@ -18,7 +18,7 @@ export default function BookingsCRM() {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/bookings');
+      const response = await axios.get(`${window.API_BASE_URL}/api/admin/bookings`);
       setBookings(response.data);
       setLoading(false);
     } catch (error) {
@@ -34,7 +34,7 @@ export default function BookingsCRM() {
   const handleDeleteBooking = async (id) => {
     if (!window.confirm('Are you sure you want to permanently delete this booking?')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/admin/bookings/${id}`);
+      await axios.delete(`${window.API_BASE_URL}/api/admin/bookings/${id}`);
       fetchBookings();
     } catch (error) {
       console.error('Error deleting booking:', error);

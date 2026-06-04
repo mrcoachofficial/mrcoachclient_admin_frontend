@@ -17,7 +17,7 @@ export default function SlotsManager() {
 
   const fetchSlots = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/slots');
+      const response = await axios.get(`${window.API_BASE_URL}/api/admin/slots`);
       setSlots(response.data);
       setLoading(false);
     } catch (error) {
@@ -32,7 +32,7 @@ export default function SlotsManager() {
     setSubmitting(true);
 
     try {
-      await axios.post('http://localhost:5000/api/admin/slots', {
+      await axios.post(`${window.API_BASE_URL}/api/admin/slots`, {
         date,
         time,
         capacity: Number(capacity),
@@ -52,7 +52,7 @@ export default function SlotsManager() {
     if (!window.confirm('Are you sure you want to delete this slot?')) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/admin/slots/${id}`);
+      await axios.delete(`${window.API_BASE_URL}/api/admin/slots/${id}`);
       fetchSlots();
     } catch (error) {
       console.error('Error deleting slot:', error);

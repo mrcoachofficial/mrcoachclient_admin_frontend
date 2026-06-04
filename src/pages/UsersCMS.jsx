@@ -51,7 +51,7 @@ export default function UsersCMS() {
       if (stateFilter) params.state = stateFilter;
       if (serviceType) params.serviceType = serviceType;
 
-      const response = await axios.get('http://localhost:5000/api/admin/users', { params });
+      const response = await axios.get(`${window.API_BASE_URL}/api/admin/users`, { params });
       setUsers(response.data);
       setLoading(false);
     } catch (error) {
@@ -63,7 +63,7 @@ export default function UsersCMS() {
   // Fetch all users to extract registered districts and states
   const fetchAllUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/users');
+      const response = await axios.get(`${window.API_BASE_URL}/api/admin/users`);
       setAllUsers(response.data);
     } catch (error) {
       console.error('Error fetching all users:', error);
@@ -137,7 +137,7 @@ export default function UsersCMS() {
         desc: 'Generating and downloading verified phone numbers...'
       });
       
-      const response = await axios.get('http://localhost:5000/api/admin/users/export-verified-phones', {
+      const response = await axios.get(`${window.API_BASE_URL}/api/admin/users/export-verified-phones`, {
         responseType: 'blob'
       });
 
@@ -237,7 +237,7 @@ export default function UsersCMS() {
           };
         });
 
-        const response = await axios.post('http://localhost:5000/api/admin/users/import', formattedData);
+        const response = await axios.post(`${window.API_BASE_URL}/api/admin/users/import`, formattedData);
         
         setStatusMessage({
           type: 'success',
@@ -262,7 +262,7 @@ export default function UsersCMS() {
   // View Detailed Profile Modal
   const handleViewDetails = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/admin/users/${userId}/detail`);
+      const response = await axios.get(`${window.API_BASE_URL}/api/admin/users/${userId}/detail`);
       setSelectedUserDetail(response.data);
       setViewTab('bookings');
       setViewModalOpen(true);
@@ -301,7 +301,7 @@ export default function UsersCMS() {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/admin/users/${editUser._id}`, editForm);
+      await axios.put(`${window.API_BASE_URL}/api/admin/users/${editUser._id}`, editForm);
       setEditModalOpen(false);
       refreshData();
       setStatusMessage({
@@ -322,7 +322,7 @@ export default function UsersCMS() {
   // Delete (Soft Delete) User
   const handleDeleteUser = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/admin/users/${deleteConfirmUser._id}`);
+      await axios.delete(`${window.API_BASE_URL}/api/admin/users/${deleteConfirmUser._id}`);
       setDeleteConfirmUser(null);
       refreshData();
       setStatusMessage({
@@ -553,7 +553,7 @@ export default function UsersCMS() {
                       <div className="flex items-center gap-3">
                         {user.profileImage ? (
                           <img
-                            src={`http://localhost:5000${user.profileImage}`}
+                            src={`${window.API_BASE_URL}${user.profileImage}`}
                             alt={user.name}
                             className="w-8 h-8 rounded-full object-cover border border-borderLine bg-surface"
                           />

@@ -33,10 +33,10 @@ export default function EventBookingsCMS() {
 
   const fetchLiveBookingData = async () => {
     try {
-      const bookingsResponse = await axios.get('http://localhost:5000/api/admin/event-bookings');
+      const bookingsResponse = await axios.get(`${window.API_BASE_URL}/api/admin/event-bookings`);
       setBookings(bookingsResponse.data);
 
-      const overviewResponse = await axios.get('http://localhost:5000/api/admin/event-bookings/overview');
+      const overviewResponse = await axios.get(`${window.API_BASE_URL}/api/admin/event-bookings/overview`);
       setOverview(overviewResponse.data);
       
       setLoading(false);

@@ -36,7 +36,7 @@ export default function RewardsCMS() {
   const fetchCampaigns = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://localhost:5000/api/rewards/admin/campaigns', {
+      const response = await axios.get(`${window.API_BASE_URL}/api/rewards/admin/campaigns`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCampaigns(response.data);
@@ -49,7 +49,7 @@ export default function RewardsCMS() {
 
   const fetchConfigs = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/config');
+      const response = await axios.get(`${window.API_BASE_URL}/api/admin/config`);
       setRewardsEnabled(response.data.rewardsEnabled);
     } catch (error) {
       console.error('Error fetching config:', error);
@@ -63,7 +63,7 @@ export default function RewardsCMS() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.post('http://localhost:5000/api/rewards/admin/campaigns', {
+      await axios.post(`${window.API_BASE_URL}/api/rewards/admin/campaigns`, {
         title,
         subTitle,
         rewardAmount: Number(rewardAmount),
@@ -95,7 +95,7 @@ export default function RewardsCMS() {
     try {
       const token = localStorage.getItem('adminToken');
       const newStatus = currentStatus === 'active' ? 'paused' : 'active';
-      await axios.put(`http://localhost:5000/api/rewards/admin/campaigns/${id}/status`, {
+      await axios.put(`${window.API_BASE_URL}/api/rewards/admin/campaigns/${id}/status`, {
         status: newStatus
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -110,7 +110,7 @@ export default function RewardsCMS() {
     if (!window.confirm('Are you sure you want to delete this campaign? Associated scratch cards will be deleted.')) return;
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:5000/api/rewards/admin/campaigns/${id}`, {
+      await axios.delete(`${window.API_BASE_URL}/api/rewards/admin/campaigns/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchCampaigns();

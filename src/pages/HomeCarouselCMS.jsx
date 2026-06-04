@@ -33,6 +33,12 @@ export default function HomeCarouselCMS() {
     fetchBanners();
   }, []);
 
+  useEffect(() => {
+    if (!editingId) {
+      setDisplayOrder(banners.length.toString());
+    }
+  }, [banners, editingId]);
+
   const fetchBanners = async () => {
     try {
       const token = localStorage.getItem('adminToken');
@@ -145,7 +151,7 @@ export default function HomeCarouselCMS() {
     setCtaText('Explore Now');
     setRedirectType('none');
     setRedirectId('');
-    setDisplayOrder('0');
+    setDisplayOrder(banners.length.toString());
     setIsActive(true);
     setStartDate('');
     setEndDate('');
@@ -196,15 +202,33 @@ export default function HomeCarouselCMS() {
   };
 
   const adjustOrder = async (banner, direction) => {
-    const change = direction === 'up' ? -1 : 1;
-    const newOrder = Math.max(0, banner.displayOrder + change);
+    const index = banners.findIndex(b => b._id === banner._id);
+    if (index === -1) return;
+
+    let targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= banners.length) return;
+
+    // Swap items in cloned array
+    const newBanners = [...banners];
+    const temp = newBanners[index];
+    newBanners[index] = newBanners[targetIndex];
+    newBanners[targetIndex] = temp;
+
+    const token = localStorage.getItem('adminToken');
     try {
-      const token = localStorage.getItem('adminToken');
-      await axios.put(`${window.API_BASE_URL}/api/home-banners/admin/${banner._id}`, {
-        displayOrder: newOrder
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
+      const promises = [];
+      newBanners.forEach((b, i) => {
+        if (b.displayOrder !== i) {
+          promises.push(
+            axios.put(`${window.API_BASE_URL}/api/home-banners/admin/${b._id}`, {
+              displayOrder: i
+            }, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+          );
+        }
       });
+      await Promise.all(promises);
       fetchBanners();
     } catch (error) {
       console.error('Error ordering banner:', error);
@@ -428,7 +452,7 @@ export default function HomeCarouselCMS() {
               </div>
             ) : (
               <div className="space-y-4">
-                {banners.map((b) => (
+                {banners.map((b, index) => (
                   <div key={b._id} className={clsx(
                     "p-4 rounded-xl border transition-all flex gap-4 items-start",
                     b.isActive ? "bg-surfaceLight/25 border-borderLine/40" : "bg-surfaceLight/10 border-borderLine/10 opacity-70"
@@ -465,14 +489,22 @@ export default function HomeCarouselCMS() {
                       <div className="flex flex-col gap-1.5">
                         <button 
                           onClick={() => adjustOrder(b, 'up')}
-                          className="w-7 h-7 bg-surfaceLight border border-borderLine rounded hover:bg-surface text-textMain flex items-center justify-center"
+                          disabled={index === 0}
+                          className={clsx(
+                            "w-7 h-7 bg-surfaceLight border border-borderLine rounded text-textMain flex items-center justify-center transition-all",
+                            index === 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-surface"
+                          )}
                           title="Move Up"
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
                         </button>
                         <button 
                           onClick={() => adjustOrder(b, 'down')}
-                          className="w-7 h-7 bg-surfaceLight border border-borderLine rounded hover:bg-surface text-textMain flex items-center justify-center"
+                          disabled={index === banners.length - 1}
+                          className={clsx(
+                            "w-7 h-7 bg-surfaceLight border border-borderLine rounded text-textMain flex items-center justify-center transition-all",
+                            index === banners.length - 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-surface"
+                          )}
                           title="Move Down"
                         >
                           <ArrowDown className="w-3.5 h-3.5" />

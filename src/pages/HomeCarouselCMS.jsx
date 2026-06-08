@@ -319,26 +319,14 @@ export default function HomeCarouselCMS() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs text-textMuted mb-1.5 ml-1">CTA Button Text</label>
-                  <input 
-                    type="text" 
-                    value={ctaText}
-                    onChange={(e) => setCtaText(e.target.value)}
-                    placeholder="Explore Now"
-                    className="w-full bg-surfaceLight/50 border border-borderLine text-textMain text-sm rounded-xl py-3 px-4 focus:outline-none focus:border-primary/50" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-textMuted mb-1.5 ml-1">Display Order</label>
-                  <input 
-                    type="number" 
-                    value={displayOrder}
-                    onChange={(e) => setDisplayOrder(e.target.value)}
-                    className="w-full bg-surfaceLight/50 border border-borderLine text-textMain text-sm rounded-xl py-3 px-4 focus:outline-none focus:border-primary/50" 
-                  />
-                </div>
+              <div>
+                <label className="block text-xs text-textMuted mb-1.5 ml-1">Display Order</label>
+                <input 
+                  type="number" 
+                  value={displayOrder}
+                  onChange={(e) => setDisplayOrder(e.target.value)}
+                  className="w-full bg-surfaceLight/50 border border-borderLine text-textMain text-sm rounded-xl py-3 px-4 focus:outline-none focus:border-primary/50" 
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">

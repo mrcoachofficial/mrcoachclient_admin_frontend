@@ -24,11 +24,13 @@ export default function Overview() {
   });
   const [recentBookings, setRecentBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState('7days');
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const overviewResponse = await axios.get(`${window.API_BASE_URL}/api/admin/overview`);
+        setLoading(true);
+        const overviewResponse = await axios.get(`${window.API_BASE_URL}/api/admin/overview?range=${timeRange}`);
         const { totalClients, totalBookings, totalEnquiries, paidDemos, totalRevenue } = overviewResponse.data;
 
         const bookingsResponse = await axios.get(`${window.API_BASE_URL}/api/admin/bookings`);
@@ -52,7 +54,7 @@ export default function Overview() {
       }
     };
     fetchDashboardData();
-  }, []);
+  }, [timeRange]);
 
   return (
     <div className="p-8">
@@ -61,9 +63,16 @@ export default function Overview() {
           <h1 className="text-2xl font-bold text-textMain mb-1">Overview Dashboard</h1>
           <p className="text-textMuted text-sm">Welcome back. Here's what's happening today.</p>
         </div>
-        <div className="text-sm bg-surfaceLight px-4 py-2 rounded-lg border border-borderLine text-textMuted">
-          Last 7 Days
-        </div>
+        <select
+          value={timeRange}
+          onChange={(e) => setTimeRange(e.target.value)}
+          className="text-sm bg-surfaceLight px-4 py-2 rounded-lg border border-borderLine text-textMuted outline-none cursor-pointer hover:border-primary/50 transition-colors"
+        >
+          <option value="7days">Last 7 Days</option>
+          <option value="month">Last Month</option>
+          <option value="year">This Year</option>
+          <option value="all">All Time</option>
+        </select>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">

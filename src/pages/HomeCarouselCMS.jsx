@@ -88,8 +88,8 @@ export default function HomeCarouselCMS() {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`
           }
-        });
-        setImageUrl(`${window.API_BASE_URL}${response.data.imageUrl}`);
+        const returnedUrl = response.data.imageUrl;
+        setImageUrl(returnedUrl.startsWith('http') ? returnedUrl : `${window.API_BASE_URL}${returnedUrl}`);
         setFormStatus({ success: true, message: 'Carousel banner uploaded successfully!' });
       } catch (error) {
         setFormStatus({ success: false, message: 'Image upload failed.' });

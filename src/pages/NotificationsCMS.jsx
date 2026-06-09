@@ -81,9 +81,8 @@ export default function NotificationsCMS() {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`
-        }
-      });
-      setBannerImage(`${window.API_BASE_URL}${response.data.imageUrl}`);
+      const returnedUrl = response.data.imageUrl;
+      setBannerImage(returnedUrl.startsWith('http') ? returnedUrl : `${window.API_BASE_URL}${returnedUrl}`);
       setFormStatus({ success: true, message: 'Banner image uploaded successfully!' });
     } catch (error) {
       setFormStatus({ success: false, message: 'Image upload failed. Supports JPG/PNG/WebP only.' });

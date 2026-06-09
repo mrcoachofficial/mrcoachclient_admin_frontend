@@ -100,9 +100,11 @@ export default function ServiceMediaCMS() {
             Authorization: `Bearer ${token}`
           }
         });
-        setImageUrl(`${window.API_BASE_URL}${response.data.imageUrl}`);
+        const returnedUrl = response.data.imageUrl;
+        const finalUrl = returnedUrl.startsWith('http') ? returnedUrl : `${window.API_BASE_URL}${returnedUrl}`;
+        setImageUrl(finalUrl);
         // Auto generate dummy optimized thumbnail version (suffixing path or linking same for simplicity)
-        setThumbnailUrl(`${window.API_BASE_URL}${response.data.imageUrl}`);
+        setThumbnailUrl(finalUrl);
         setFormStatus({ success: true, message: 'Image uploaded and thumbnail generated!' });
       } catch (error) {
         setFormStatus({ success: false, message: 'Image upload failed.' });

@@ -86,8 +86,8 @@ export default function HomeCarouselCMS() {
         const response = await axios.post(`${window.API_BASE_URL}/api/upload`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`
           }
+        });
         const returnedUrl = response.data.imageUrl;
         setImageUrl(returnedUrl.startsWith('http') ? returnedUrl : `${window.API_BASE_URL}${returnedUrl}`);
         setFormStatus({ success: true, message: 'Carousel banner uploaded successfully!' });

@@ -81,6 +81,8 @@ export default function NotificationsCMS() {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`
+        }
+      });
       const returnedUrl = response.data.imageUrl;
       setBannerImage(returnedUrl.startsWith('http') ? returnedUrl : `${window.API_BASE_URL}${returnedUrl}`);
       setFormStatus({ success: true, message: 'Banner image uploaded successfully!' });

@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Search, Filter, MoreVertical, CheckCircle2, Clock, Trash2 } from 'lucide-react';
+import { Search, Filter, MoreVertical, CheckCircle2, Clock, Trash2, FileSpreadsheet, FileText } from 'lucide-react';
 import axios from 'axios';
 import clsx from 'clsx';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 // Placeholder data representing MongoDB output
 const mockBookings = [
@@ -55,6 +58,97 @@ export default function BookingsCRM() {
     return matchesTab && matchesSearch;
   });
 
+  const exportToExcel = () => {
+    const dataToExport = filteredBookings.map((b, i) => ({
+      'S.No': i + 1,
+      'Client Name': b.user?.name || 'Guest User',
+      'Mobile Number': b.mobileNumber || '',
+      'Service Name': b.serviceName || '',
+      'Mode': b.mode || '',
+      'Date': b.date ? new Date(b.date).toLocaleDateString() : '',
+      'Time': b.time || '',
+      'Type': b.bookingType || 'Enquiry',
+      'Price': b.price || 0,
+      'Payment Status': b.bookingType?.toLowerCase() === 'demo' ? (b.paymentStatus === 'paid' ? 'Paid' : 'Unpaid') : '-',
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Bookings & Leads');
+
+    // Auto-fit column widths
+    const max_widths = [];
+    dataToExport.forEach(row => {
+      Object.keys(row).forEach((key, colIndex) => {
+        const value = row[key] ? row[key].toString() : '';
+        const len = Math.max(key.length, value.length);
+        max_widths[colIndex] = Math.max(max_widths[colIndex] || 10, len);
+      });
+    });
+    worksheet['!cols'] = max_widths.map(w => ({ wch: w + 2 }));
+
+    XLSX.writeFile(workbook, `bookings_export_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+
+    // Title & Metadata
+    doc.setFontSize(16);
+    doc.text('Bookings & Leads Report', 14, 15);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 22);
+    doc.text(`Filter Mode: ${activeTab}`, 14, 27);
+
+    // Table Columns
+    const tableColumn = [
+      'S.No',
+      'Client Name',
+      'Mobile Number',
+      'Service Name',
+      'Mode',
+      'Date & Time',
+      'Type',
+      'Payment',
+    ];
+
+    // Table Rows
+    const tableRows = filteredBookings.map((b, i) => [
+      i + 1,
+      b.user?.name || 'Guest User',
+      b.mobileNumber || '',
+      b.serviceName || '',
+      b.mode || '',
+      `${b.date ? new Date(b.date).toLocaleDateString() : ''} ${b.time || ''}`,
+      b.bookingType || 'Enquiry',
+      b.bookingType?.toLowerCase() === 'demo'
+        ? `${b.paymentStatus === 'paid' ? 'Paid' : 'Unpaid'} (Rs.${b.price})`
+        : '-',
+    ]);
+
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 32,
+      theme: 'grid',
+      headStyles: { fillColor: [249, 196, 19] }, // Brand yellow
+      styles: { fontSize: 8 },
+      columnStyles: {
+        0: { cellWidth: 10 },
+        1: { cellWidth: 30 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 40 },
+        4: { cellWidth: 20 },
+        5: { cellWidth: 25 },
+        6: { cellWidth: 20 },
+        7: { cellWidth: 25 },
+      },
+    });
+
+    doc.save(`bookings_export_${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
   return (
     <div className="p-8">
       <div className="flex justify-between items-end mb-8">
@@ -63,6 +157,20 @@ export default function BookingsCRM() {
           <p className="text-textMuted text-sm">Manage your incoming clients and demo requests.</p>
         </div>
         <div className="flex gap-3">
+          <button 
+            onClick={exportToExcel}
+            className="flex items-center gap-2 bg-green-600/10 border border-green-600/30 hover:bg-green-600/20 px-4 py-2 rounded-lg text-sm text-green-500 font-medium transition-colors"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            Export Excel
+          </button>
+          <button 
+            onClick={exportToPDF}
+            className="flex items-center gap-2 bg-red-600/10 border border-red-600/30 hover:bg-red-600/20 px-4 py-2 rounded-lg text-sm text-red-500 font-medium transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            Export PDF
+          </button>
           <button className="flex items-center gap-2 bg-surfaceLight border border-borderLine px-4 py-2 rounded-lg text-sm text-textMuted hover:text-textMain transition-colors">
             <Filter className="w-4 h-4" />
             More Filters

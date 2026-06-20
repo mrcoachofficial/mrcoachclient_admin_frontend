@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { 
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, PieChart, Pie, Cell, Legend
+} from 'recharts';
 import { ArrowUpRight, Users, CalendarCheck, IndianRupee, Activity, MessageSquare } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -20,7 +23,10 @@ export default function Overview() {
     totalBookings: 0,
     paidDemos: 0,
     freeEnquiries: 0,
-    totalClients: 0
+    totalClients: 0,
+    topServices: [],
+    cityDensity: [],
+    modeDistribution: []
   });
   const [recentBookings, setRecentBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +37,10 @@ export default function Overview() {
       try {
         setLoading(true);
         const overviewResponse = await axios.get(`${window.API_BASE_URL}/api/admin/overview?range=${timeRange}`);
-        const { totalClients, totalBookings, totalEnquiries, paidDemos, totalRevenue } = overviewResponse.data;
+        const { 
+          totalClients, totalBookings, totalEnquiries, paidDemos, totalRevenue,
+          topServices, cityDensity, modeDistribution 
+        } = overviewResponse.data;
 
         const bookingsResponse = await axios.get(`${window.API_BASE_URL}/api/admin/bookings`);
         const bookings = bookingsResponse.data;
@@ -41,7 +50,10 @@ export default function Overview() {
           totalBookings,
           paidDemos,
           freeEnquiries: totalEnquiries,
-          totalClients
+          totalClients,
+          topServices: topServices || [],
+          cityDensity: cityDensity || [],
+          modeDistribution: modeDistribution || []
         });
 
         // Get 4 most recent
@@ -127,6 +139,109 @@ export default function Overview() {
                 <div className="ml-auto text-xs text-textMuted">{new Date(b.date).toLocaleDateString()}</div>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Analytics Grid Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+        {/* Widget 1: Top-Performing Services */}
+        <div className="glass rounded-2xl p-6 flex flex-col">
+          <h2 className="text-lg font-semibold mb-4 text-textMain">Top-Performing Services</h2>
+          <div className="h-64 flex-grow">
+            {loading ? (
+              <div className="h-full flex items-center justify-center text-textMuted text-sm">Loading charts...</div>
+            ) : stats.topServices.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-textMuted text-sm">No data available</div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.topServices.slice(0, 5)} layout="vertical" margin={{ left: 20, right: 10, top: 10, bottom: 10 }}>
+                  <XAxis type="number" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis dataKey="_id" type="category" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} width={80} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0', borderRadius: '8px' }}
+                    itemStyle={{ color: '#0F172A' }}
+                  />
+                  <Bar dataKey="bookingCount" name="Bookings" fill="#F5C518" radius={[0, 4, 4, 0]} barSize={14} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* Widget 2: Booking Mode Distribution */}
+        <div className="glass rounded-2xl p-6 flex flex-col">
+          <h2 className="text-lg font-semibold mb-4 text-textMain">Booking Mode Distribution</h2>
+          <div className="h-64 flex-grow flex items-center justify-center">
+            {loading ? (
+              <div className="text-textMuted text-sm">Loading charts...</div>
+            ) : stats.modeDistribution.length === 0 ? (
+              <div className="text-textMuted text-sm">No data available</div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stats.modeDistribution}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={75}
+                    paddingAngle={5}
+                    dataKey="count"
+                    nameKey="mode"
+                  >
+                    {stats.modeDistribution.map((entry, index) => {
+                      const colors = ['#F5C518', '#6366F1', '#10B981', '#EC4899'];
+                      return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                    })}
+                  </Pie>
+                  <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0', borderRadius: '8px' }} />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* Widget 3: City & Area Booking Density */}
+        <div className="glass rounded-2xl p-6 flex flex-col">
+          <h2 className="text-lg font-semibold mb-6 text-textMain">City & Area Density</h2>
+          <div className="space-y-4 flex-grow overflow-y-auto max-h-64 pr-1">
+            {loading ? (
+              <p className="text-textMuted text-sm">Loading locations...</p>
+            ) : stats.cityDensity.length === 0 ? (
+              <p className="text-textMuted text-sm">No location data available.</p>
+            ) : (
+              stats.cityDensity.slice(0, 5).map((cityItem, index) => {
+                const maxCount = stats.cityDensity[0]?.bookingCount || 1;
+                const percentage = (cityItem.bookingCount / maxCount) * 100;
+                return (
+                  <div key={index} className="flex flex-col">
+                    <div className="flex justify-between items-center mb-1 text-xs font-medium">
+                      <div className="flex items-center gap-2">
+                        <span className={clsx(
+                          "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold",
+                          index === 0 && "bg-[#F5C518]/25 text-[#D4AA14]",
+                          index === 1 && "bg-slate-300 text-slate-500",
+                          index === 2 && "bg-amber-100 text-amber-700",
+                          index > 2 && "bg-surfaceLight text-textMuted"
+                        )}>
+                          {index + 1}
+                        </span>
+                        <span className="text-textMain truncate max-w-[140px]">{cityItem.district} - {cityItem.area}</span>
+                      </div>
+                      <span className="text-textMain font-semibold">{cityItem.bookingCount} bookings</span>
+                    </div>
+                    <div className="w-full bg-surfaceLight h-1.5 rounded-full overflow-hidden">
+                      <div 
+                        className="bg-[#F5C518] h-full rounded-full transition-all duration-500" 
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>

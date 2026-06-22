@@ -4,7 +4,7 @@ import axios from 'axios';
 import clsx from 'clsx';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 // Placeholder data representing MongoDB output
 const mockBookings = [
@@ -18,6 +18,11 @@ export default function BookingsCRM() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // More Filters state
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterMode, setFilterMode] = useState('All');
+  const [filterStatus, setFilterStatus] = useState('All');
 
   const fetchBookings = async () => {
     try {
@@ -50,12 +55,18 @@ export default function BookingsCRM() {
       (activeTab === 'Demos' && b.bookingType?.toLowerCase() === 'demo') ||
       (activeTab === 'Enquiries' && b.bookingType?.toLowerCase() === 'enquiry');
 
+    const matchesMode = filterMode === 'All' || 
+      b.mode?.toLowerCase() === filterMode.toLowerCase();
+
+    const matchesStatus = filterStatus === 'All' || 
+      b.status?.toLowerCase() === filterStatus.toLowerCase();
+
     const name = b.user?.name || 'Guest User';
     const mobile = b.mobileNumber || '';
     const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mobile.includes(searchTerm);
 
-    return matchesTab && matchesSearch;
+    return matchesTab && matchesMode && matchesStatus && matchesSearch;
   });
 
   const exportToExcel = () => {
@@ -130,7 +141,7 @@ export default function BookingsCRM() {
         : '-',
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: 32,
@@ -175,7 +186,15 @@ export default function BookingsCRM() {
             <FileText className="w-4 h-4" />
             Export PDF
           </button>
-          <button className="flex items-center gap-2 bg-surfaceLight border border-borderLine px-4 py-2 rounded-lg text-sm text-textMuted hover:text-textMain transition-colors">
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className={clsx(
+              "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border",
+              showFilters 
+                ? "bg-primary text-black border-primary" 
+                : "bg-surfaceLight border-borderLine text-textMuted hover:text-textMain"
+            )}
+          >
             <Filter className="w-4 h-4" />
             More Filters
           </button>
@@ -183,6 +202,54 @@ export default function BookingsCRM() {
       </div>
 
       <div className="glass rounded-2xl overflow-hidden">
+        {/* Collapsible More Filters Panel */}
+        {showFilters && (
+          <div className="flex flex-wrap gap-6 p-4 border-b border-borderLine bg-surfaceLight/20">
+            {/* Mode Filter */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-textMuted uppercase">Session Mode</label>
+              <select
+                value={filterMode}
+                onChange={(e) => setFilterMode(e.target.value)}
+                className="bg-surface border border-borderLine text-textMain rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary/50"
+              >
+                <option value="All">All Modes</option>
+                <option value="Online">Online</option>
+                <option value="Home Visit">Home Visit</option>
+              </select>
+            </div>
+
+            {/* Status Filter */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-textMuted uppercase">Booking Status</label>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="bg-surface border border-borderLine text-textMain rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary/50"
+              >
+                <option value="All">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+
+            {/* Reset Filters */}
+            <div className="flex items-end">
+              <button
+                onClick={() => {
+                  setFilterMode('All');
+                  setFilterStatus('All');
+                }}
+                className="text-xs font-semibold text-primary hover:text-primaryHover underline cursor-pointer pb-2.5"
+              >
+                Reset Filters
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Toolbar & Tabs */}
         <div className="flex items-center justify-between p-4 border-b border-borderLine bg-surfaceLight/30">
           <div className="flex gap-2 bg-surface p-1 rounded-lg border border-borderLine">

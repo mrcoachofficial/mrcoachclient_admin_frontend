@@ -65,6 +65,7 @@ export default function BookingsCRM() {
       'Mobile Number': b.mobileNumber || '',
       'Service Name': b.serviceName || '',
       'Mode': b.mode || '',
+      'Booked On': b.createdAt ? new Date(b.createdAt).toLocaleString() : 'N/A',
       'Date': b.date ? new Date(b.date).toLocaleDateString() : '',
       'Time': b.time || '',
       'Type': b.bookingType || 'Enquiry',
@@ -108,6 +109,7 @@ export default function BookingsCRM() {
       'Mobile Number',
       'Service Name',
       'Mode',
+      'Booked On',
       'Date & Time',
       'Type',
       'Payment',
@@ -120,6 +122,7 @@ export default function BookingsCRM() {
       b.mobileNumber || '',
       b.serviceName || '',
       b.mode || '',
+      b.createdAt ? new Date(b.createdAt).toLocaleString() : 'N/A',
       `${b.date ? new Date(b.date).toLocaleDateString() : ''} ${b.time || ''}`,
       b.bookingType || 'Enquiry',
       b.bookingType?.toLowerCase() === 'demo'
@@ -133,16 +136,17 @@ export default function BookingsCRM() {
       startY: 32,
       theme: 'grid',
       headStyles: { fillColor: [249, 196, 19] }, // Brand yellow
-      styles: { fontSize: 8 },
+      styles: { fontSize: 7 },
       columnStyles: {
         0: { cellWidth: 10 },
-        1: { cellWidth: 30 },
-        2: { cellWidth: 25 },
-        3: { cellWidth: 40 },
-        4: { cellWidth: 20 },
+        1: { cellWidth: 25 },
+        2: { cellWidth: 20 },
+        3: { cellWidth: 35 },
+        4: { cellWidth: 15 },
         5: { cellWidth: 25 },
-        6: { cellWidth: 20 },
-        7: { cellWidth: 25 },
+        6: { cellWidth: 25 },
+        7: { cellWidth: 15 },
+        8: { cellWidth: 20 },
       },
     });
 
@@ -216,6 +220,7 @@ export default function BookingsCRM() {
                 <th className="p-4 font-medium w-16 text-center">S.No</th>
                 <th className="p-4 font-medium">Client Info</th>
                 <th className="p-4 font-medium">Service</th>
+                <th className="p-4 font-medium">Booked On</th>
                 <th className="p-4 font-medium">Slot</th>
                 <th className="p-4 font-medium">Type</th>
                 <th className="p-4 font-medium">Payment</th>
@@ -224,9 +229,9 @@ export default function BookingsCRM() {
             </thead>
             <tbody className="divide-y divide-borderLine/50 text-sm">
               {loading ? (
-                <tr><td colSpan="7" className="p-8 text-center text-textMuted">Loading live bookings from database...</td></tr>
+                <tr><td colSpan="8" className="p-8 text-center text-textMuted">Loading live bookings from database...</td></tr>
               ) : filteredBookings.length === 0 ? (
-                <tr><td colSpan="7" className="p-8 text-center text-textMuted">No bookings found.</td></tr>
+                <tr><td colSpan="8" className="p-8 text-center text-textMuted">No bookings found.</td></tr>
               ) : filteredBookings.map((booking, index) => (
                 <tr key={booking._id} className="hover:bg-surfaceLight/30 transition-colors">
                   <td className="p-4 text-center font-medium text-textMuted w-16">
@@ -241,6 +246,10 @@ export default function BookingsCRM() {
                     <span className="text-[10px] uppercase border border-borderLine px-2 py-0.5 rounded text-textMuted mt-1 inline-block">
                       {booking.mode}
                     </span>
+                  </td>
+                  <td className="p-4">
+                    <p className="text-textMain">{booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : 'N/A'}</p>
+                    <p className="text-xs text-textMuted">{booking.createdAt ? new Date(booking.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</p>
                   </td>
                   <td className="p-4">
                     <p className="text-textMain">{new Date(booking.date).toLocaleDateString()}</p>

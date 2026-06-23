@@ -26,6 +26,11 @@ export default function BookingsCRM() {
   const [filterMonth, setFilterMonth] = useState('All');
   const [filterDate, setFilterDate] = useState('');
   const [filterTime, setFilterTime] = useState('All');
+  const [filterService, setFilterService] = useState('All');
+
+  const uniqueServices = Array.from(
+    new Set(bookings.map(b => b.serviceName).filter(Boolean))
+  ).sort();
 
   const fetchBookings = async () => {
     try {
@@ -102,12 +107,15 @@ export default function BookingsCRM() {
       }
     }
 
+    const matchesService = filterService === 'All' || 
+      b.serviceName === filterService;
+
     const name = b.user?.name || 'Guest User';
     const mobile = b.mobileNumber || '';
     const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mobile.includes(searchTerm);
 
-    return matchesTab && matchesMode && matchesStatus && matchesMonth && matchesDate && matchesTime && matchesSearch;
+    return matchesTab && matchesMode && matchesStatus && matchesMonth && matchesDate && matchesTime && matchesService && matchesSearch;
   });
 
   const exportToExcel = () => {
@@ -326,6 +334,21 @@ export default function BookingsCRM() {
               </select>
             </div>
 
+            {/* Service Filter */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-textMuted uppercase">Service</label>
+              <select
+                value={filterService}
+                onChange={(e) => setFilterService(e.target.value)}
+                className="bg-surface border border-borderLine text-textMain rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary/50"
+              >
+                <option value="All">All Services</option>
+                {uniqueServices.map(service => (
+                  <option key={service} value={service}>{service}</option>
+                ))}
+              </select>
+            </div>
+
             {/* Reset Filters */}
             <div className="flex items-end">
               <button
@@ -335,6 +358,7 @@ export default function BookingsCRM() {
                   setFilterMonth('All');
                   setFilterDate('');
                   setFilterTime('All');
+                  setFilterService('All');
                 }}
                 className="text-xs font-semibold text-primary hover:text-primaryHover underline cursor-pointer pb-2.5"
               >

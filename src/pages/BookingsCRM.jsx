@@ -23,6 +23,9 @@ export default function BookingsCRM() {
   const [showFilters, setShowFilters] = useState(false);
   const [filterMode, setFilterMode] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [filterMonth, setFilterMonth] = useState('All');
+  const [filterDate, setFilterDate] = useState('');
+  const [filterTime, setFilterTime] = useState('All');
 
   const fetchBookings = async () => {
     try {
@@ -61,12 +64,50 @@ export default function BookingsCRM() {
     const matchesStatus = filterStatus === 'All' || 
       b.status?.toLowerCase() === filterStatus.toLowerCase();
 
+    // Helper to extract hour from "hh:mm AM/PM" format
+    const getHour = (timeStr) => {
+      if (!timeStr) return -1;
+      const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+      if (!match) return -1;
+      let hours = parseInt(match[1]);
+      const ampm = match[3].toUpperCase();
+      if (ampm === 'PM' && hours < 12) hours += 12;
+      if (ampm === 'AM' && hours === 12) hours = 0;
+      return hours;
+    };
+
+    const slotDate = b.date ? new Date(b.date) : null;
+    const matchesMonth = filterMonth === 'All' || (slotDate && slotDate.getMonth() === parseInt(filterMonth));
+
+    let matchesDate = true;
+    if (filterDate && slotDate) {
+      const year = slotDate.getFullYear();
+      const month = String(slotDate.getMonth() + 1).padStart(2, '0');
+      const day = String(slotDate.getDate()).padStart(2, '0');
+      const localDateStr = `${year}-${month}-${day}`;
+      matchesDate = localDateStr === filterDate;
+    } else if (filterDate && !slotDate) {
+      matchesDate = false;
+    }
+
+    let matchesTime = true;
+    if (filterTime !== 'All') {
+      const hours = getHour(b.time);
+      if (filterTime === 'morning') {
+        matchesTime = hours >= 6 && hours < 12;
+      } else if (filterTime === 'afternoon') {
+        matchesTime = hours >= 12 && hours < 17;
+      } else if (filterTime === 'evening') {
+        matchesTime = hours >= 17 || (hours >= 0 && hours < 6);
+      }
+    }
+
     const name = b.user?.name || 'Guest User';
     const mobile = b.mobileNumber || '';
     const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mobile.includes(searchTerm);
 
-    return matchesTab && matchesMode && matchesStatus && matchesSearch;
+    return matchesTab && matchesMode && matchesStatus && matchesMonth && matchesDate && matchesTime && matchesSearch;
   });
 
   const exportToExcel = () => {
@@ -235,12 +276,65 @@ export default function BookingsCRM() {
               </select>
             </div>
 
+            {/* Month Filter */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-textMuted uppercase">Month</label>
+              <select
+                value={filterMonth}
+                onChange={(e) => setFilterMonth(e.target.value)}
+                className="bg-surface border border-borderLine text-textMain rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary/50"
+              >
+                <option value="All">All Months</option>
+                <option value="0">January</option>
+                <option value="1">February</option>
+                <option value="2">March</option>
+                <option value="3">April</option>
+                <option value="4">May</option>
+                <option value="5">June</option>
+                <option value="6">July</option>
+                <option value="7">August</option>
+                <option value="8">September</option>
+                <option value="9">October</option>
+                <option value="10">November</option>
+                <option value="11">December</option>
+              </select>
+            </div>
+
+            {/* Specific Date Filter */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-textMuted uppercase">Date</label>
+              <input
+                type="date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                className="bg-surface border border-borderLine text-textMain rounded-lg px-3 py-1 text-sm outline-none focus:border-primary/50 h-[38px]"
+              />
+            </div>
+
+            {/* Slot Time Filter */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-textMuted uppercase">Slot Time</label>
+              <select
+                value={filterTime}
+                onChange={(e) => setFilterTime(e.target.value)}
+                className="bg-surface border border-borderLine text-textMain rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary/50"
+              >
+                <option value="All">All Times</option>
+                <option value="morning">Morning (6 AM - 12 PM)</option>
+                <option value="afternoon">Afternoon (12 PM - 5 PM)</option>
+                <option value="evening">Evening (5 PM - 10 PM)</option>
+              </select>
+            </div>
+
             {/* Reset Filters */}
             <div className="flex items-end">
               <button
                 onClick={() => {
                   setFilterMode('All');
                   setFilterStatus('All');
+                  setFilterMonth('All');
+                  setFilterDate('');
+                  setFilterTime('All');
                 }}
                 className="text-xs font-semibold text-primary hover:text-primaryHover underline cursor-pointer pb-2.5"
               >

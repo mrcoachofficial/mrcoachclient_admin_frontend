@@ -124,6 +124,7 @@ export default function BookingsCRM() {
       'Client Name': b.user?.name || 'Guest User',
       'Mobile Number': b.mobileNumber || '',
       'Service Name': b.serviceName || '',
+      'Budget Preference': b.priceRange || 'Not Specified',
       'Mode': b.mode || '',
       'Booked On': b.createdAt ? new Date(b.createdAt).toLocaleString() : 'N/A',
       'Date': b.date ? new Date(b.date).toLocaleDateString() : '',
@@ -428,9 +429,16 @@ export default function BookingsCRM() {
                   </td>
                   <td className="p-4">
                     <p className="text-textMain">{booking.serviceName}</p>
-                    <span className="text-[10px] uppercase border border-borderLine px-2 py-0.5 rounded text-textMuted mt-1 inline-block">
-                      {booking.mode}
-                    </span>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      <span className="text-[10px] uppercase border border-borderLine px-2 py-0.5 rounded text-textMuted">
+                        {booking.mode}
+                      </span>
+                      {booking.priceRange && (
+                        <span className="text-[10px] uppercase border border-primary/30 bg-primary/5 px-2 py-0.5 rounded text-primary font-medium">
+                          {booking.priceRange}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="p-4">
                     <p className="text-textMain">{booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : 'N/A'}</p>

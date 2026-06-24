@@ -17,6 +17,7 @@ export default function Settings() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [sendNotifications, setSendNotifications] = useState(true);
   const [rewardsEnabled, setRewardsEnabled] = useState(true);
+  const [coachPriceTiers, setCoachPriceTiers] = useState([]);
 
   useEffect(() => {
     fetchConfigs();
@@ -28,6 +29,7 @@ export default function Settings() {
       setMaintenanceMode(response.data.maintenanceMode);
       setSendNotifications(response.data.sendNotifications);
       setRewardsEnabled(response.data.rewardsEnabled);
+      setCoachPriceTiers(response.data.coachPriceTiers || []);
     } catch (error) {
       console.error('Error fetching system configurations:', error);
     }
@@ -261,6 +263,79 @@ export default function Settings() {
                 </label>
               </div>
             </div>
+          </div>
+
+          {/* Coach Price Tiers Editor */}
+          <div className="glass rounded-2xl p-6 border border-borderLine/50">
+            <h2 className="text-lg font-bold text-textMain mb-6 flex items-center gap-2 border-b border-borderLine/50 pb-3">
+              Coach Price Tiers
+            </h2>
+            <p className="text-xs text-textMuted mb-4">
+              Configure the price ranges and descriptions shown on the booking sheet in the mobile app.
+            </p>
+            <div className="space-y-4">
+              {coachPriceTiers.map((tier, index) => (
+                <div key={index} className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-surfaceLight/30 border border-borderLine/30">
+                  <div className="sm:col-span-1">
+                    <label className="block text-[10px] uppercase font-semibold text-textMuted mb-1">Min Price (₹)</label>
+                    <input 
+                      type="number" 
+                      value={tier.min}
+                      onChange={(e) => {
+                        const newTiers = [...coachPriceTiers];
+                        newTiers[index].min = parseInt(e.target.value) || 0;
+                        setCoachPriceTiers(newTiers);
+                      }}
+                      className="w-full bg-surface border border-borderLine text-textMain text-sm rounded-lg py-2 px-3 focus:outline-none focus:border-primary/50"
+                    />
+                  </div>
+                  <div className="sm:col-span-1">
+                    <label className="block text-[10px] uppercase font-semibold text-textMuted mb-1">Max Price (₹)</label>
+                    <input 
+                      type="number" 
+                      value={tier.max}
+                      onChange={(e) => {
+                        const newTiers = [...coachPriceTiers];
+                        newTiers[index].max = parseInt(e.target.value) || 0;
+                        setCoachPriceTiers(newTiers);
+                      }}
+                      className="w-full bg-surface border border-borderLine text-textMain text-sm rounded-lg py-2 px-3 focus:outline-none focus:border-primary/50"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-[10px] uppercase font-semibold text-textMuted mb-1">Description / Label</label>
+                    <input 
+                      type="text" 
+                      value={tier.label}
+                      onChange={(e) => {
+                        const newTiers = [...coachPriceTiers];
+                        newTiers[index].label = e.target.value;
+                        setCoachPriceTiers(newTiers);
+                      }}
+                      className="w-full bg-surface border border-borderLine text-textMain text-sm rounded-lg py-2 px-3 focus:outline-none focus:border-primary/50"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <button
+              onClick={async () => {
+                try {
+                  await axios.put(`${window.API_BASE_URL}/api/admin/config`, {
+                    key: 'coachPriceTiers',
+                    value: coachPriceTiers
+                  });
+                  alert('Coach price tiers updated successfully!');
+                } catch (error) {
+                  console.error('Error updating coach price tiers:', error);
+                  alert('Failed to update coach price tiers');
+                }
+              }}
+              className="bg-primary hover:bg-primaryHover text-[#09090B] font-bold rounded-xl px-6 py-3 mt-4 transition-all"
+            >
+              Save Tiers
+            </button>
           </div>
         </div>
       </div>
